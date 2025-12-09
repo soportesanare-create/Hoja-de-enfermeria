@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hoja de Enfermería - Sanaré</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <!-- Estilos -->
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <div class="app-wrapper" id="hoja-enfermeria">
+      <header class="header">
+        <img src="assets/img/logo-sanare.png" alt="Sanaré - Clínica de Infusión" class="header-logo" />
+        <div class="header-title">Hoja de enfermería</div>
+        <div class="header-subtitle">SAN-NAR-ENF-FOR-02</div>
+      </header>
+
+      <!-- DATOS GENERALES -->
+      <section class="section">
+        <h2 class="section-title">Datos generales del paciente</h2>
+        <div class="section-grid-2">
+          <div class="field">
+            <label for="nombre">Nombre del paciente</label>
+            <input type="text" id="nombre" name="nombre" placeholder="Nombre completo" />
+          </div>
+          <div class="field">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" name="fecha" />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="fecha-nacimiento">Fecha de nacimiento</label>
+              <input type="date" id="fecha-nacimiento" name="fecha_nacimiento" />
+            </div>
+            <div class="field">
+              <label for="edad">Edad</label>
+              <input type="text" id="edad" name="edad" placeholder="Automático" />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="genero">Género</label>
+              <select id="genero" name="genero">
+                <option value="">Seleccionar…</option>
+                <option value="femenino">Femenino</option>
+                <option value="masculino">Masculino</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="alergias">Alergias</label>
+              <input type="text" id="alergias" name="alergias" placeholder="Ej. Negadas / Penicilina" />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="peso">Peso (kg)</label>
+              <input type="number" id="peso" name="peso" step="0.1" />
+            </div>
+            <div class="field">
+              <label for="talla">Talla (cm)</label>
+              <input type="number" id="talla" name="talla" step="0.1" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="medico">Médico tratante</label>
+            <input type="text" id="medico" name="medico" />
+          </div>
+          <div class="field">
+            <label for="diagnostico">Diagnóstico</label>
+            <input type="text" id="diagnostico" name="diagnostico" />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="expediente">Expediente</label>
+              <input type="text" id="expediente" name="expediente" />
+            </div>
+            <div class="field">
+              <label for="esquema">Esquema</label>
+              <input type="text" id="esquema" name="esquema" />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="comorbilidades">Comorbilidades</label>
+              <input type="text" id="comorbilidades" name="comorbilidades" />
+            </div>
+            <div class="field-row" style="gap: 10px; flex: 1;">
+              <div class="field">
+                <label for="ciclo">Ciclo</label>
+                <input type="text" id="ciclo" name="ciclo" />
+              </div>
+              <div class="field">
+                <label for="dia">Día</label>
+                <input type="text" id="dia" name="dia" />
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="hora-entrada">Hora de entrada</label>
+              <input type="time" id="hora-entrada" name="hora_entrada" />
+            </div>
+            <div class="field">
+              <label for="hora-salida">Hora de salida</label>
+              <input type="time" id="hora-salida" name="hora_salida" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SIGNOS VITALES -->
+      <section class="section">
+        <h2 class="section-title">Signos vitales</h2>
+        <span class="tag">Horas precargadas, editable</span>
+        <div class="table-wrapper">
+          <table id="tabla-signos-vitales">
+            <thead>
+              <tr>
+                <th>Hora</th>
+                <th>T/A</th>
+                <th>FC</th>
+                <th>FR</th>
+                <th>Temp (°C)</th>
+                <th>SpO₂ (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Filas generadas dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn" id="btn-add-sv">Agregar registro de signos vitales</button>
+      </section>
+
+      <!-- FARMACOTERAPIA -->
+      <section class="section">
+        <h2 class="section-title">Farmacoterapia</h2>
+        <span class="tag">Medicamentos con buscador y vía VO / IV / IM / SC</span>
+        <div class="table-wrapper">
+          <table id="tabla-farmacoterapia">
+            <thead>
+              <tr>
+                <th>Hora</th>
+                <th>Medicamento</th>
+                <th>Dosis</th>
+                <th>Dilución</th>
+                <th>Tiempo de infusión</th>
+                <th>Vía de administración</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Filas generadas dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn" id="btn-add-ft">Agregar medicamento</button>
+
+        <!-- Autocompletado de medicamentos -->
+        <datalist id="lista-medicamentos">
+          <!-- Opciones desde medicamentos.json -->
+        </datalist>
+      </section>
+
+      <!-- PLAN DE EGRESO -->
+      <section class="section">
+        <h2 class="section-title">Plan de egreso</h2>
+        <div class="section-grid-2-tall">
+          <div>
+            <div class="tag">Actividades para el bienestar propio</div>
+            <div class="checkbox-group">
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_1">
+          <span>Realizar caminatas cortas diarias (según indicación médica).</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_2">
+          <span>Practicar ejercicios de respiración y relajación 10–15 minutos al día.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_3">
+          <span>Destinar un tiempo diario para una actividad placentera (leer, música, manualidades).</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_4">
+          <span>Mantener higiene del sueño (hora fija para dormir, evitar pantallas antes de dormir).</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_5">
+          <span>Llevar registro sencillo de dolor, fatiga y otros síntomas.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_6">
+          <span>Seguir plan de alimentación recomendado por nutrición (porciones, horarios, hidratación).</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_7">
+          <span>Tomar la medicación de mantenimiento en los horarios indicados.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_8">
+          <span>Realizar ejercicios de estiramiento o movilidad articular en casa.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_9">
+          <span>Programar momentos de contacto social (llamadas, visitas breves).</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_10">
+          <span>Practicar técnicas de manejo de ansiedad (mindfulness, meditación guiada, oración si aplica).</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_11">
+          <span>Ejercicio adaptado</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_12">
+          <span>Nutrición equilibrada.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_13">
+          <span>Hidratación.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_14">
+          <span>Lubricación de la piel.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="bienestar_15">
+          <span>Rutina se sueño regular</span>
+        </label>
+            </div>
+            <div class="field" style="margin-top:10px;">
+              <label for="bienestar-otro">Otro / notas adicionales</label>
+              <textarea id="bienestar-otro" name="bienestar_otro"></textarea>
+            </div>
+          </div>
+          <div>
+            <div class="tag">Actividades educativas para la familia y el paciente</div>
+            <div class="checkbox-group">
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_1">
+          <span>Explicar signos de alarma y cuándo acudir de inmediato al hospital.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_2">
+          <span>Enseñar el manejo correcto de medicamentos (dosis, horarios, posibles efectos secundarios).</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_3">
+          <span>Indicar cuidados de la herida / catéter / acceso venoso (limpieza, protección, qué NO hacer).</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_4">
+          <span>Entregar y revisar calendario de citas médicas y estudios de control.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_5">
+          <span>Explicar a la familia cómo apoyar en la movilización y prevención de caídas.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_6">
+          <span>Enseñar pautas básicas de alimentación en casa (qué alimentos priorizar y cuáles evitar).</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_7">
+          <span>Reforzar medidas de higiene en el hogar (lavado de manos, uso de cubrebocas si aplica).</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_8">
+          <span>Orientar sobre manejo de dolor en casa y uso de analgésicos prescritos.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_9">
+          <span>Brindar información de contactos de emergencia y teléfonos del servicio.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_10">
+          <span>Orientar sobre recursos de apoyo emocional / psicooncológico y grupos de apoyo.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_11">
+          <span>Charlas informativas.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_12">
+          <span>Guía educativa</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_13">
+          <span>Explicación detallada del tratamiento.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_14">
+          <span>Manejo de efectos secundarios.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_15">
+          <span>Cuidados en el hogar.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_16">
+          <span>Cuidados de la piel.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_17">
+          <span>Alimentación saludable.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_18">
+          <span>Ejercicio leve.</span>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="educa_19">
+          <span>Reconocimiento de signos de alarma.</span>
+        </label>
+            </div>
+            <div class="field" style="margin-top:10px;">
+              <label for="educa-otro">Otro / notas adicionales</label>
+              <textarea id="educa-otro" name="educa_otro"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CUIDADOS ESPECÍFICOS DE ENFERMERÍA -->
+      <section class="section">
+        <h2 class="section-title">Cuidados específicos de enfermería</h2>
+        <div class="section-grid-2">
+          <div class="field">
+            <label for="intervenciones-especificas">Intervenciones específicas</label>
+            <textarea id="intervenciones-especificas" name="intervenciones_especificas"></textarea>
+          </div>
+          <div class="field">
+            <label for="intervenciones-generales">Intervenciones generales</label>
+            <textarea id="intervenciones-generales" name="intervenciones_generales"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- NOTA DE ENFERMERÍA -->
+      <section class="section">
+        <h2 class="section-title">Nota de enfermería</h2>
+        <div class="field">
+          <textarea id="nota-enfermeria" name="nota_enfermeria" placeholder="Registrar evolución, intervenciones realizadas, respuesta del paciente, etc."></textarea>
+        </div>
+      </section>
+
+      <!-- FIRMAS -->
+      <section class="section">
+        <h2 class="section-title">Registro de enfermería</h2>
+        <div class="section-grid-2">
+          <div class="field">
+            <label for="elaboro">Elaboró</label>
+            <input type="text" id="elaboro" name="elaboro" placeholder="Nombre completo" />
+          </div>
+          <div class="field">
+            <label for="cedula">Cédula profesional</label>
+            <input type="text" id="cedula" name="cedula" />
+          </div>
+        </div>
+        <div class="field" style="margin-top:12px;">
+          <label for="firma">Firma</label>
+          <input type="text" id="firma" name="firma" placeholder="Espacio para firma manuscrita al imprimir" />
+        </div>
+        <div class="footer-note">
+          Este formato es de uso interno exclusivo de Sanaré Clínica de Infusión.
+        </div>
+        <button type="button" class="btn" id="btn-download-pdf">Descargar PDF</button>
+      </section>
+    </div>
+    <!-- Librerías para PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="assets/js/app.js"></script>
+
+  </body>
+</html>

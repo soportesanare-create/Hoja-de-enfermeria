@@ -1,0 +1,367 @@
+
+* {
+  box-sizing: border-box;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #0f172a;
+  background: radial-gradient(circle at top, #1f2937 0, #020617 45%, #000 100%);
+  color: #111827;
+}
+
+.app-wrapper {
+  max-width: 1100px;
+  margin: 24px auto 40px;
+  padding: 24px 32px 40px;
+  background: #fdfdfd;
+  border-radius: 16px;
+  box-shadow: 0 24px 65px rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(209, 213, 219, 0.9);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.header-logo {
+  max-width: 220px;
+  height: auto;
+  margin-bottom: 4px;
+}
+
+.header-title {
+  font-size: 20px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #4b5563;
+}
+
+.header-subtitle {
+  font-size: 13px;
+  color: #9ca3af;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.section {
+  margin-top: 18px;
+  padding: 16px 18px 18px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #6b7280;
+  margin: 0 0 10px;
+}
+
+.section-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+}
+
+.field label {
+  font-weight: 500;
+  color: #374151;
+}
+
+.field-row {
+  display: flex;
+  gap: 12px;
+}
+
+.field-row .field {
+  flex: 1;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 6px 9px;
+  font-size: 12px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  background-color: #ffffff;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #b98f7b;
+  box-shadow: 0 0 0 1px rgba(185, 143, 123, 0.35);
+}
+
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 2px 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 11px;
+  color: #6b7280;
+  background: #f9fafb;
+}
+
+.table-wrapper {
+  margin-top: 8px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+thead {
+  background: #f3f4f6;
+}
+
+th,
+td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: middle;
+}
+
+th {
+  text-align: left;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+button.btn {
+  border-radius: 999px;
+  border: none;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: #b98f7b;
+  color: #ffffff;
+  margin-top: 8px;
+  box-shadow: 0 9px 18px rgba(15, 23, 42, 0.35);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+}
+
+button.btn:hover {
+  background: #a67255;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.5);
+}
+
+button.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 5px 12px rgba(15, 23, 42, 0.45);
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.checkbox-item input {
+  margin-top: 2px;
+}
+
+.section-grid-2-tall {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 22px;
+}
+
+.footer-note {
+  margin-top: 16px;
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: right;
+}
+
+/* Small screens */
+@media (max-width: 768px) {
+  .app-wrapper {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .section-grid-2,
+  .section-grid-2-tall {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+.icon-btn {
+  border: none;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 999px;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.icon-btn:hover {
+  background: #fecaca;
+}
+
+
+/* Columna de acciones (botón X) siempre visible */
+.table-wrapper table th:last-child,
+.table-wrapper table td:last-child {
+  width: 40px;
+  text-align: center;
+}
+
+/* Botón X un poco más grande y separado del borde */
+.icon-btn {
+  margin-left: 0;
+  margin-right: 4px;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+}
+
+
+/* Celdas con botón de eliminación dentro (Signos vitales / Farmacoterapia) */
+.cell-with-x {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Botón X compacto y siempre visible */
+.icon-btn {
+  border: none;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 999px;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.icon-btn:hover {
+  background: #fecaca;
+}
+
+
+/* Ajuste final: input + botón X dentro de la misma celda */
+td.cell-with-x {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+}
+
+td.cell-with-x input,
+td.cell-with-x select {
+  flex: 1;
+  min-width: 0;
+}
+
+td.cell-with-x .icon-btn {
+  flex-shrink: 0;
+}
+
+
+/* Ajuste visual final: input/select a ancho completo y botón X flotando a la derecha */
+td.cell-with-x {
+  position: relative;
+  display: table-cell;
+}
+
+td.cell-with-x input,
+td.cell-with-x select {
+  width: 100%;
+  padding-right: 28px; /* espacio para la X */
+}
+
+td.cell-with-x .icon-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 999px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+td.cell-with-x .icon-btn:hover {
+  background: #fecaca;
+}
+
+
+/* Override: última columna (SpO2 / Vía) con ancho igual al resto */
+.table-wrapper table th:last-child,
+.table-wrapper table td:last-child {
+  width: auto;
+  text-align: left;
+}
