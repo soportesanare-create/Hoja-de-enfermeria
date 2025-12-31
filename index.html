@@ -44,7 +44,7 @@
           </div>
 
           <div class="field-row">
-            <div class="field">
+            <div class="field" style="flex:0.85;">
               <label for="genero">Género</label>
               <select id="genero" name="genero">
                 <option value="">Seleccionar…</option>
@@ -56,6 +56,10 @@
             <div class="field">
               <label for="alergias">Alergias</label>
               <input type="text" id="alergias" name="alergias" placeholder="Ej. Negadas / Penicilina" />
+            </div>
+            <div class="field">
+              <label for="comorbilidades">Comorbilidades</label>
+              <input type="text" id="comorbilidades" name="comorbilidades" />
             </div>
           </div>
 
@@ -79,10 +83,19 @@
             <input type="text" id="diagnostico" name="diagnostico" />
           </div>
 
-          <div class="field-row">
+          <div class="field">
+            <label for="expediente">Expediente</label>
+            <input type="text" id="expediente" name="expediente" />
+          </div>
+
+          <div class="field-row span-2">
             <div class="field">
-              <label for="expediente">Expediente</label>
-              <input type="text" id="expediente" name="expediente" />
+              <label for="ciclo">Ciclo</label>
+              <input type="text" id="ciclo" name="ciclo" />
+            </div>
+            <div class="field">
+              <label for="dia">Día</label>
+              <input type="text" id="dia" name="dia" />
             </div>
             <div class="field">
               <label for="esquema">Esquema</label>
@@ -90,24 +103,7 @@
             </div>
           </div>
 
-          <div class="field-row">
-            <div class="field">
-              <label for="comorbilidades">Comorbilidades</label>
-              <input type="text" id="comorbilidades" name="comorbilidades" />
-            </div>
-            <div class="field-row" style="gap: 10px; flex: 1;">
-              <div class="field">
-                <label for="ciclo">Ciclo</label>
-                <input type="text" id="ciclo" name="ciclo" />
-              </div>
-              <div class="field">
-                <label for="dia">Día</label>
-                <input type="text" id="dia" name="dia" />
-              </div>
-            </div>
-          </div>
-
-          <div class="field-row">
+          <div class="field-row span-2">
             <div class="field">
               <label for="hora-entrada">Hora de entrada</label>
               <input type="time" id="hora-entrada" name="hora_entrada" />
@@ -142,6 +138,148 @@
           </table>
         </div>
         <button type="button" class="btn" id="btn-add-sv">Agregar registro de signos vitales</button>
+      </section>
+
+      <!-- ESCALAS DE VALORACIÓN -->
+      <section class="section" id="seccion-escalas">
+        <h2 class="section-title">Escalas de valoración</h2>
+        <span class="tag">Valoración del paciente oncológico ambulatorio con quimioterapia</span>
+
+        <div class="section-grid-2" style="margin-top: 10px;">
+          <div class="field">
+            <label for="ecog">ECOG (Eastern Cooperative Oncology Group)</label>
+            <select id="ecog" name="ecog">
+              <option value="">Seleccionar…</option>
+              <option value="0">0 — Asintomático. Totalmente activo.</option>
+              <option value="1">1 — Restricción actividad intensa. Capaz de trabajo ordinario.</option>
+              <option value="2">2 — Ambulatorio y capaz de autocuidados. Incapaz para trabajar. Levantado más del 50% del tiempo despierto.</option>
+              <option value="3">3 — Capaz de algún autocuidado. Vida cama-sillón más del 50% del tiempo despierto.</option>
+              <option value="4">4 — Incapacidad total. Silla-cama el 100% del tiempo despierto.</option>
+              <option value="5">5 — Muerto.</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="kps">Karnofsky (KPS)</label>
+            <select id="kps" name="kps">
+              <option value="">Seleccionar…</option>
+              <option value="40">40 — Inválido, incapacitado, necesita cuidados y atenciones especiales. Encamado más del 50% del día.</option>
+              <option value="30">30 — Inválido grave, severamente incapacitado, tratamiento de soporte activo.</option>
+              <option value="20">20 — Encamado por completo, paciente muy grave, necesita hospitalización y tratamiento activo.</option>
+              <option value="10">10 — Moribundo.</option>
+              <option value="0">0 — Fallecido.</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="eva">EVA (dolor) 0–10</label>
+            <input type="number" id="eva" name="eva" min="0" max="10" step="1" placeholder="0 a 10" />
+            <div class="help">0: ausencia • 1–3: leve • 4–7: moderado • 8–10: severo</div>
+          </div>
+
+          <div class="field">
+            <label for="ctcae">CTCAE (Eventos adversos)</label>
+            <select id="ctcae" name="ctcae">
+              <option value="">Seleccionar…</option>
+              <option value="1">Grado 1 — Leve</option>
+              <option value="2">Grado 2 — Moderado</option>
+              <option value="3">Grado 3 — Grave</option>
+              <option value="4">Grado 4 — Potencialmente mortal</option>
+              <option value="5">Grado 5 — Muerte</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="mucositis">Mucositis oral (NCI)</label>
+            <select id="mucositis" name="mucositis">
+              <option value="">Seleccionar…</option>
+              <option value="1">1 — Asintomático o síntomas leves, sin necesidad de intervenir</option>
+              <option value="2">2 — Dolor moderado, no interfiere con la ingesta oral; se debe modificar la dieta</option>
+              <option value="3">3 — Dolor severo, interfiere con la ingesta oral</option>
+              <option value="4">4 — Consecuencias potencialmente letales, se requieren intervenciones urgentes</option>
+              <option value="5">5 — Muerte</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="maddox">Maddox (flebitis)</label>
+            <select id="maddox" name="maddox">
+              <option value="">Seleccionar…</option>
+              <option value="0">0 — No dolor, eritema, tumefacción ni induración de un cordón venoso</option>
+              <option value="1">1 — Dolor en el punto de inserción, sin eritema, tumefacción o cordón venoso</option>
+              <option value="2">2 — Cierto grado de eritema, tumefacción o ambos; sin induración ni cordón venoso</option>
+              <option value="3">3 — Eritema, tumefacción y cordón venoso palpable 5–6 cm por encima; fiebre</option>
+              <option value="4">4 — Eritema, tumefacción y cordón venoso palpable superior a 5–6 cm; fiebre</option>
+              <option value="5">5 — Trombosis venosa franca con dificultad o detención de la perfusión</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="scale-card">
+          <div class="scale-card-title">Riesgo de caídas (J.H. Downton)</div>
+          <div class="downton-grid">
+            <div class="downton-col">
+              <div class="downton-group-title">Caídas previas</div>
+              <label class="checkbox-item">
+                <input type="radio" name="downton_caidas" class="downton-item" data-score="0" checked>
+                <span>No (0)</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="radio" name="downton_caidas" class="downton-item" data-score="1">
+                <span>Sí (1)</span>
+              </label>
+            </div>
+
+            <div class="downton-col">
+              <div class="downton-group-title">Medicamentos (1 punto c/u)</div>
+              <label class="checkbox-item">
+                <input type="checkbox" class="downton-none" data-group="meds" data-score="0" checked>
+                <span>Ninguno (0)</span>
+              </label>
+              <label class="checkbox-item"><input type="checkbox" class="downton-item downton-opt" data-group="meds" data-score="1"><span>Tranquilizantes / sedantes</span></label>
+              <label class="checkbox-item"><input type="checkbox" class="downton-item downton-opt" data-group="meds" data-score="1"><span>Diuréticos</span></label>
+              <label class="checkbox-item"><input type="checkbox" class="downton-item downton-opt" data-group="meds" data-score="1"><span>Hipotensores (no diuréticos)</span></label>
+              <label class="checkbox-item"><input type="checkbox" class="downton-item downton-opt" data-group="meds" data-score="1"><span>Antiparkinsonianos</span></label>
+              <label class="checkbox-item"><input type="checkbox" class="downton-item downton-opt" data-group="meds" data-score="1"><span>Antidepresivos</span></label>
+              <label class="checkbox-item"><input type="checkbox" class="downton-item downton-opt" data-group="meds" data-score="1"><span>Otros medicamentos</span></label>
+            </div>
+
+            <div class="downton-col">
+              <div class="downton-group-title">Déficits sensoriales (1 punto c/u)</div>
+              <label class="checkbox-item">
+                <input type="checkbox" class="downton-none" data-group="sens" data-score="0" checked>
+                <span>Ninguno (0)</span>
+              </label>
+              <label class="checkbox-item"><input type="checkbox" class="downton-item downton-opt" data-group="sens" data-score="1"><span>Alteraciones visuales</span></label>
+              <label class="checkbox-item"><input type="checkbox" class="downton-item downton-opt" data-group="sens" data-score="1"><span>Alteraciones auditivas</span></label>
+              <label class="checkbox-item"><input type="checkbox" class="downton-item downton-opt" data-group="sens" data-score="1"><span>Extremidades (ictus)</span></label>
+
+              <div class="downton-group-title" style="margin-top: 10px;">Estado mental</div>
+              <label class="checkbox-item"><input type="radio" name="downton_mental" class="downton-item" data-score="0" checked><span>Orientado (0)</span></label>
+              <label class="checkbox-item"><input type="radio" name="downton_mental" class="downton-item" data-score="1"><span>Confuso (1)</span></label>
+
+              <div class="downton-group-title" style="margin-top: 10px;">Deambulación (marcha y equilibrio)</div>
+              <label class="checkbox-item"><input type="radio" name="downton_marcha" class="downton-item" data-score="0" checked><span>Normal (0)</span></label>
+              <label class="checkbox-item"><input type="radio" name="downton_marcha" class="downton-item" data-score="1"><span>Seguro con ayuda (1)</span></label>
+              <label class="checkbox-item"><input type="radio" name="downton_marcha" class="downton-item" data-score="1"><span>Inseguro con o sin ayuda (1)</span></label>
+              <label class="checkbox-item"><input type="radio" name="downton_marcha" class="downton-item" data-score="1"><span>Imposible (1)</span></label>
+            </div>
+
+            <div class="downton-col">
+              <div class="downton-total">
+                <div class="field">
+                  <label for="downton-total">Puntaje total</label>
+                  <input type="text" id="downton-total" value="0" readonly />
+                </div>
+              </div>
+
+              <div class="field" style="margin-top: 10px;">
+                <label for="downton-notas">Notas (opcional)</label>
+                <textarea id="downton-notas" name="downton_notas" placeholder="Observaciones relevantes para riesgo de caídas…"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- FARMACOTERAPIA -->

@@ -230,6 +230,58 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
+  // Escala de riesgo de caídas (J.H. Downton): calcular puntaje
+  const downtonTotal = document.getElementById("downton-total");
+  if (downtonTotal) {
+    const updateDowntonTotal = () => {
+      let sum = 0;
+      document.querySelectorAll(".downton-item").forEach((el) => {
+        if (el.checked) {
+          sum += Number(el.getAttribute("data-score") || 0);
+        }
+      });
+      downtonTotal.value = String(sum);
+    };
+
+    const syncNoneOptionForGroup = (groupKey) => {
+      const noneEl = document.querySelector(`.downton-none[data-group='${groupKey}']`);
+      const optEls = Array.from(document.querySelectorAll(`.downton-opt[data-group='${groupKey}']`));
+      if (!noneEl) return;
+
+      const ensureNoneIfEmpty = () => {
+        const anyChecked = optEls.some((o) => o.checked);
+        if (!anyChecked) noneEl.checked = true;
+      };
+
+      noneEl.addEventListener("change", () => {
+        if (noneEl.checked) {
+          optEls.forEach((o) => (o.checked = false));
+        } else {
+          // Evitar estado sin selección: si no hay opciones activas, mantener "Ninguno".
+          ensureNoneIfEmpty();
+        }
+        updateDowntonTotal();
+      });
+
+      optEls.forEach((o) => {
+        o.addEventListener("change", () => {
+          if (o.checked) noneEl.checked = false;
+          ensureNoneIfEmpty();
+          updateDowntonTotal();
+        });
+      });
+    };
+
+    syncNoneOptionForGroup("meds");
+    syncNoneOptionForGroup("sens");
+
+    document.querySelectorAll(".downton-item").forEach((el) => {
+      el.addEventListener("change", updateDowntonTotal);
+    });
+
+    updateDowntonTotal();
+  }
+
   // Descargar PDF usando html2canvas + jsPDF, igual que el cotizador
   const btnPdf = document.getElementById("btn-download-pdf");
   if (btnPdf) {
