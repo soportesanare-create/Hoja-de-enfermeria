@@ -72,6 +72,10 @@ body {
   gap: 12px 18px;
 }
 
+.span-2 {
+  grid-column: 1 / -1;
+}
+
 .field {
   display: flex;
   flex-direction: column;
@@ -181,7 +185,9 @@ textarea {
 .table-wrapper {
   margin-top: 8px;
   border-radius: 10px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid #e5e7eb;
   background: #ffffff;
 }
@@ -283,6 +289,56 @@ button.btn:active {
   .section-grid-2-tall {
     grid-template-columns: 1fr;
   }
+}
+
+/* =========================
+   Estilos especiales para exportar PDF (html2canvas)
+   ========================= */
+body.is-exporting-pdf .table-wrapper {
+  overflow: visible !important;
+}
+
+/* Versión “tarjeta” para Farmacoterapia en el PDF (evita cortes por scroll horizontal) */
+body.is-exporting-pdf .pdf-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+body.is-exporting-pdf .pdf-card {
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fff;
+}
+
+body.is-exporting-pdf .pdf-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+body.is-exporting-pdf .pdf-kv {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 6px 10px;
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+body.is-exporting-pdf .pdf-k {
+  color: #555;
+  font-weight: 600;
+}
+
+body.is-exporting-pdf .pdf-v {
+  color: #111;
+  word-break: break-word;
+}
+
+body.is-exporting-pdf .hide-for-pdf {
+  display: none !important;
 }
 
 
@@ -417,4 +473,225 @@ td.cell-with-x .icon-btn:hover {
 /* Util: span full width in section grid */
 .section-grid-2 .span-2 {
   grid-column: 1 / -1;
+}
+
+
+/* Collapsible: Riesgo de caídas (J.H. Downton) */
+.scale-card-collapsible .scale-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.scale-card-collapsible .scale-card-header:focus {
+  outline: 2px solid #d1d5db;
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+.scale-card-collapsible .scale-card-header .scale-card-title {
+  margin-bottom: 0;
+}
+
+.scale-card-collapsible .scale-card-body {
+  margin-top: 10px;
+  overflow: hidden;
+  max-height: 3000px;
+  opacity: 1;
+  transition: max-height 240ms ease, opacity 200ms ease, margin-top 200ms ease;
+}
+
+.scale-card-collapsible.is-collapsed .scale-card-body {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+}
+
+.scale-card-chevron {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  position: relative;
+}
+
+.scale-card-chevron::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid #9ca3af;
+  border-bottom: 2px solid #9ca3af;
+  transform: translate(-50%, -60%) rotate(45deg);
+  transition: transform 200ms ease;
+}
+
+.scale-card-collapsible.is-collapsed .scale-card-chevron::before {
+  transform: translate(-50%, -40%) rotate(-45deg);
+}
+
+
+/* --- Downton: opciones desplegables --- */
+/* Fix: permitir que los menús desplegables no se recorten dentro del card */
+#downton-card .scale-card-body{
+  overflow: visible;
+}
+
+.dd-multi-menu{
+  z-index: 9999;
+}
+
+.downton-hidden-inputs{
+  display:none !important;
+}
+
+.downton-select-wrap{
+  margin: 6px 0 10px 0;
+}
+
+.downton-select{
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border, #e6e8ee);
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  line-height: 1.2;
+}
+
+.downton-select:focus{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(47, 128, 237, 0.18);
+  border-color: rgba(47, 128, 237, 0.55);
+}
+
+/* Ajuste de tamaño de letra para los desplegables dentro de Downton */
+#downton-card .dd-multi-btn{
+  font-size: 12px;
+  padding: 6px 9px;
+}
+#downton-card .dd-multi-item{
+  font-size: 12px;
+}
+.downton-select{
+  font-size: 12px;
+}
+.downton-select option{
+  font-size: 12px;
+}
+
+
+/* Multi dropdown */
+.dd-multi{
+  position: relative;
+  width: 100%;
+  margin: 6px 0 10px 0;
+}
+
+.dd-multi-btn{
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid var(--border, #e6e8ee);
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.dd-multi-btn:focus{
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(47, 128, 237, 0.18);
+  border-color: rgba(47, 128, 237, 0.55);
+}
+
+.dd-multi-menu{
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  background: #fff;
+  border: 1px solid var(--border, #e6e8ee);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.10);
+  padding: 8px;
+  max-height: 260px;
+  overflow: auto;
+  z-index: 50;
+  display: none;
+}
+
+.dd-multi.open .dd-multi-menu{
+  display: block;
+}
+
+.dd-multi-item{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dd-multi-item:hover{
+  background: rgba(0,0,0,.04);
+}
+
+.dd-multi-item input{
+  width: 16px;
+  height: 16px;
+}
+#tabla-farmacoterapia { min-width: 980px; }
+
+
+
+/* Farmacoterapia: mejorar distribución de columnas y controles */
+#tabla-farmacoterapia {
+  min-width: 980px; /* evita que se comprima en pantallas pequeñas */
+}
+
+#tabla-farmacoterapia th {
+  white-space: normal;
+  line-height: 1.15;
+}
+
+#tabla-farmacoterapia td {
+  white-space: nowrap;
+}
+
+#tabla-farmacoterapia td input,
+#tabla-farmacoterapia td select {
+  width: 100%;
+  min-width: 120px;
+  box-sizing: border-box;
+}
+
+/* Columnas clave */
+#tabla-farmacoterapia th:nth-child(2),
+#tabla-farmacoterapia td:nth-child(2) { min-width: 220px; }
+
+#tabla-farmacoterapia th:nth-child(6),
+#tabla-farmacoterapia td:nth-child(6) { min-width: 170px; }
+
+#tabla-farmacoterapia th:nth-child(7),
+#tabla-farmacoterapia td:nth-child(7) { min-width: 260px; }
+
+#tabla-farmacoterapia td:nth-child(7) select { min-width: 240px; }
+
+.selected-preview{
+  margin-top:6px;
+  font-size:12px;
+  line-height:1.35;
+  color:#4b5563;
+  background:#f9fafb;
+  border:1px dashed #e5e7eb;
+  padding:8px 10px;
+  border-radius:10px;
+  display:none;
 }
