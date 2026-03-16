@@ -34,6 +34,203 @@ function sanitizeForFileName(str) {
 
 
 
+function syncFormValuesToClone(sourceRoot, cloneRoot) {
+  const sourceEls = Array.from(sourceRoot.querySelectorAll("input, select, textarea"));
+  const cloneEls = Array.from(cloneRoot.querySelectorAll("input, select, textarea"));
+  sourceEls.forEach((src, idx) => {
+    const dst = cloneEls[idx];
+    if (!dst) return;
+
+    if (src instanceof HTMLInputElement) {
+      if (src.type === "checkbox" || src.type === "radio") {
+        dst.checked = src.checked;
+        if (src.checked) dst.setAttribute("checked", "checked");
+        else dst.removeAttribute("checked");
+      } else {
+        dst.value = src.value;
+        dst.setAttribute("value", src.value || "");
+      }
+    } else if (src instanceof HTMLTextAreaElement) {
+      dst.value = src.value;
+      dst.textContent = src.value || "";
+    } else if (src instanceof HTMLSelectElement) {
+      Array.from(dst.options).forEach((opt, i) => {
+        opt.selected = src.selectedIndex === i;
+        if (opt.selected) opt.setAttribute("selected", "selected");
+        else opt.removeAttribute("selected");
+      });
+      dst.value = src.value;
+    }
+  });
+}
+
+function hideUncheckedOptions(root) {
+  root.querySelectorAll(".checkbox-group .checkbox-item").forEach((label) => {
+    const input = label.querySelector('input[type="checkbox"], input[type="radio"]');
+    if (input && !input.checked) label.classList.add("export-hide");
+  });
+
+  root.querySelectorAll("#plan-egreso-section .field").forEach((field) => {
+    const control = field.querySelector("textarea, input, select");
+    if (!control) return;
+    const value = (control.value || "").trim();
+    if (!value) field.classList.add("export-hide");
+  });
+}
+
+function cloneExportWrapper() {
+  const source = document.getElementById("hoja-enfermeria");
+  if (!source) return null;
+  const clone = source.cloneNode(true);
+  syncFormValuesToClone(source, clone);
+
+  clone.querySelectorAll("script").forEach((el) => el.remove());
+  clone.querySelectorAll(".icon-btn, #btn-add-sv, #btn-add-ft, #btn-download-pdf, #btn-download-word").forEach((el) => el.remove());
+  clone.querySelectorAll(".table-wrapper").forEach((el) => { el.style.overflow = "visible"; });
+  clone.querySelectorAll("img").forEach((img) => {
+    try {
+      img.src = new URL(img.getAttribute("src") || "", document.baseURI).href;
+    } catch (err) {}
+  });
+  hideUncheckedOptions(clone);
+  return clone;
+}
+
+function transformCloneForWord(root) {
+  if (!root) return;
+
+  root.querySelectorAll(".header-logo").forEach((img) => img.remove());
+  root.querySelectorAll(".action-buttons, .btn, .icon-btn").forEach((el) => el.remove());
+
+  root.querySelectorAll(".scale-card-collapsible").forEach((card) => {
+    card.classList.remove("is-collapsed");
+    const body = card.querySelector(".scale-card-body");
+    if (body) {
+      body.style.display = "block";
+      body.style.maxHeight = "none";
+      body.style.overflow = "visible";
+    }
+  });
+
+  const notesPanel = root.querySelector("#downton-notes-panel");
+  const notesField = root.querySelector("#downton-notas");
+  if (notesPanel) {
+    const hasNotes = !!(notesField && (notesField.value || notesField.textContent || "").trim());
+    notesPanel.classList.toggle("is-hidden", !hasNotes);
+  }
+
+  root.querySelectorAll("input, select, textarea").forEach((el) => {
+    if (el.type === "hidden") {
+      el.remove();
+      return;
+    }
+
+    let value = "";
+    if (el instanceof HTMLSelectElement) {
+      value = el.options[el.selectedIndex]?.text || "";
+    } else if (el instanceof HTMLTextAreaElement) {
+      value = el.value || el.textContent || "";
+    } else if (el instanceof HTMLInputElement) {
+      if (el.type === "checkbox" || el.type === "radio") {
+        if (!el.checked) {
+          el.remove();
+          return;
+        }
+        value = el.closest("label")?.innerText?.trim() || "Sí";
+      } else {
+        value = el.value || "";
+      }
+    }
+
+    const replacement = document.createElement("div");
+    replacement.className = "word-field-value";
+    replacement.textContent = (value || "").trim() || "—";
+
+    if (el.closest("td")) {
+      replacement.classList.add("word-table-value");
+    }
+    if (el.tagName === "TEXTAREA") {
+      replacement.classList.add("word-textarea-value");
+    }
+    el.replaceWith(replacement);
+  });
+
+  root.querySelectorAll(".selected-preview").forEach((el) => {
+    const text = (el.textContent || "").trim();
+    if (!text || text === "Seleccionar…") el.remove();
+  });
+
+  root.querySelectorAll(".dd-multi-menu, .downton-hidden-inputs").forEach((el) => el.remove());
+  root.querySelectorAll(".dd-multi-btn").forEach((btn) => {
+    const replacement = document.createElement("div");
+    replacement.className = "word-field-value";
+    replacement.textContent = (btn.textContent || "").trim() || "Ninguno (0)";
+    btn.replaceWith(replacement);
+  });
+}
+
+function buildWordExportHtml(wrapperClone) {
+  transformCloneForWord(wrapperClone);
+
+  const inlineCss = Array.from(document.styleSheets).map((sheet) => {
+    try {
+      return Array.from(sheet.cssRules || []).map((rule) => rule.cssText).join("\n");
+    } catch (err) {
+      return "";
+    }
+  }).join("\n");
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Hoja de enfermería</title>
+<style>
+${inlineCss}
+@page { size: A4; margin: 14mm; }
+body { background: #ffffff !important; padding: 0 !important; color: #111827; }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.app-wrapper { box-shadow: none !important; margin: 0 auto !important; max-width: 100% !important; border: 1px solid #d1d5db !important; padding: 14px 16px 18px !important; border-radius: 10px !important; }
+.header { margin-bottom: 10px !important; padding-bottom: 8px !important; text-align: center !important; }
+.header-logo { display:none !important; }
+.header-title { font-size: 16px !important; letter-spacing: .08em !important; }
+.header-subtitle { font-size: 11px !important; letter-spacing: .12em !important; }
+.section { margin-top: 10px !important; padding: 10px 12px 12px !important; background: #f9fafb !important; }
+.section-title { margin-bottom: 8px !important; }
+.section-grid-2, .section-grid-2-tall { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px 14px !important; }
+.field-row { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px !important; }
+.field { gap: 4px !important; }
+label { display:block; margin-bottom: 3px; }
+.word-field-value { min-height: 28px; border: 1px solid #d1d5db; border-radius: 8px; padding: 6px 9px; background: #ffffff; font-size: 12px; line-height: 1.35; white-space: pre-wrap; word-break: break-word; }
+.word-textarea-value { min-height: 60px; }
+.word-table-value { min-height: 22px; padding: 4px 6px; border-radius: 6px; }
+.table-wrapper { overflow: visible !important; border-radius: 10px !important; }
+table { width: 100% !important; table-layout: fixed; }
+th, td { padding: 6px 7px !important; border: 1px solid #e5e7eb !important; white-space: normal !important; word-break: break-word; }
+thead { display: table-header-group; }
+tr { page-break-inside: avoid; }
+.action-buttons, .btn, .icon-btn, .footer-note + .btn, .footer-note + .action-buttons, .downton-notes-toggle-wrap, .scale-card-chevron { display:none !important; }
+.checkbox-group .checkbox-item.export-hide,
+#plan-egreso-section .field.export-hide,
+.downton-hidden-inputs,
+.dd-multi-menu,
+.export-hide { display:none !important; }
+.downton-grid { display: flex !important; flex-wrap: nowrap !important; gap: 10px !important; min-width: 0 !important; overflow: visible !important; }
+.downton-col { flex: 1 1 0 !important; min-width: 0 !important; }
+.downton-col-summary { flex: 1.1 1 0 !important; min-width: 0 !important; }
+.downton-summary-top { display:block !important; }
+.downton-total { margin-bottom: 8px; }
+#downton-content { max-height: none !important; }
+@media screen {
+  body { padding: 12px !important; }
+}
+</style>
+</head>
+<body>${wrapperClone.outerHTML}</body>
+</html>`;
+}
+
+
 function addSignoVitalRow(tableBody) {
   const row = document.createElement("tr");
 
@@ -491,46 +688,98 @@ document.addEventListener("DOMContentLoaded", () => {
 
     initDowntonDropdowns();
 
+    const downtonNotesToggle = document.getElementById("downton-notes-toggle");
+    const downtonNotesPanel = document.getElementById("downton-notes-panel");
+    const downtonNotes = document.getElementById("downton-notas");
+    if (downtonNotesToggle && downtonNotesPanel) {
+      const downtonCardEl = document.getElementById("downton-card");
+      const downtonBodyEl = downtonCardEl ? downtonCardEl.querySelector(".scale-card-body") : null;
+
+      const syncDowntonCardHeight = () => {
+        if (downtonBodyEl && downtonCardEl && !downtonCardEl.classList.contains("is-collapsed")) {
+          downtonBodyEl.style.maxHeight = downtonBodyEl.scrollHeight + "px";
+        }
+      };
+
+      const setNotesOpen = (open) => {
+        downtonNotesPanel.classList.toggle("is-hidden", !open);
+        downtonNotesToggle.setAttribute("aria-expanded", String(open));
+        downtonNotesToggle.textContent = open ? "Ocultar notas" : "Notas";
+        syncDowntonCardHeight();
+        if (open && downtonNotes) {
+          window.requestAnimationFrame(() => downtonNotes.focus());
+        }
+      };
+
+      downtonNotesToggle.addEventListener("click", () => {
+        const isOpen = !downtonNotesPanel.classList.contains("is-hidden");
+        setNotesOpen(!isOpen);
+      });
+
+      if (downtonNotes && String(downtonNotes.value || "").trim()) {
+        setNotesOpen(true);
+      } else {
+        setNotesOpen(false);
+      }
+    }
 
     updateDowntonTotal();
   }
 
-  // Descargar PDF usando html2canvas + jsPDF, igual que el cotizador
+  // Exportaciones (PDF y Word)
   const btnPdf = document.getElementById("btn-download-pdf");
-  if (btnPdf) {
-    btnPdf.addEventListener("click", () => {
-      const wrapper = document.getElementById("hoja-enfermeria");
-      if (!wrapper) return;
+  const btnWord = document.getElementById("btn-download-word");
 
-      // --- Preparación visual para PDF ---
-      // html2canvas NO captura contenido fuera de la vista cuando hay scroll horizontal.
-      // Para evitar que Farmacoterapia se vea cortada, convertimos la tabla a una versión
-      // “tarjeta” temporal (solo durante la exportación) que se ajusta al ancho del PDF.
-      const preparePdfLayout = () => {
-        document.body.classList.add('is-exporting-pdf');
+  const collectExportMutations = () => {
+    const mutations = [];
+    const hideEl = (el) => {
+      if (!el || el.classList.contains("export-hide")) return;
+      el.classList.add("export-hide");
+      mutations.push(() => el.classList.remove("export-hide"));
+    };
 
-        const ftTable = document.getElementById('tabla-farmacoterapia');
-        if (!ftTable) return;
+    document.querySelectorAll(".checkbox-group .checkbox-item").forEach((label) => {
+      const input = label.querySelector('input[type="checkbox"], input[type="radio"]');
+      if (input && !input.checked) hideEl(label);
+    });
 
-        const ftWrapper = ftTable.closest('.table-wrapper');
-        const ftSection = ftTable.closest('section');
-        if (!ftWrapper || !ftSection) return;
+    document.querySelectorAll("#plan-egreso-section .field").forEach((field) => {
+      const control = field.querySelector("textarea, input, select");
+      if (!control) return;
+      if (!String(control.value || "").trim()) hideEl(field);
+    });
 
-        // Ocultar la tabla (para PDF) y construir tarjetas con los valores seleccionados
-        ftWrapper.classList.add('hide-for-pdf');
+    document.querySelectorAll("#btn-add-sv, #btn-add-ft, .action-buttons").forEach(hideEl);
 
-        // Evitar duplicados
-        const existing = document.getElementById('ft-pdf-cards');
+    return () => {
+      mutations.reverse().forEach((undo) => undo());
+    };
+  };
+
+  const buildPdfLayout = () => {
+    document.body.classList.add("is-exporting-pdf");
+    const undoSelectionFilter = collectExportMutations();
+
+    const ftTable = document.getElementById("tabla-farmacoterapia");
+    let restoreFarmaco = () => {};
+
+    if (ftTable) {
+      const ftWrapper = ftTable.closest(".table-wrapper");
+      const ftSection = ftTable.closest("section");
+      if (ftWrapper && ftSection) {
+        ftWrapper.classList.add("hide-for-pdf");
+
+        const existing = document.getElementById("ft-pdf-cards");
         if (existing) existing.remove();
 
-        const cards = document.createElement('div');
-        cards.id = 'ft-pdf-cards';
-        cards.className = 'pdf-cards';
+        const cards = document.createElement("div");
+        cards.id = "ft-pdf-cards";
+        cards.className = "pdf-cards";
 
-        const rows = Array.from(ftTable.querySelectorAll('tbody tr'));
+        const rows = Array.from(ftTable.querySelectorAll("tbody tr"));
         if (rows.length === 0) {
-          const empty = document.createElement('div');
-          empty.className = 'pdf-card';
+          const empty = document.createElement("div");
+          empty.className = "pdf-card";
           empty.innerHTML = `
             <div class="pdf-card-title">Farmacoterapia</div>
             <div class="pdf-kv">
@@ -540,39 +789,30 @@ document.addEventListener("DOMContentLoaded", () => {
           cards.appendChild(empty);
         } else {
           rows.forEach((tr, idx) => {
-            const tds = tr.querySelectorAll('td');
+            const tds = tr.querySelectorAll("td");
             const getInputVal = (cellIndex) => {
               const cell = tds[cellIndex];
-              const el = cell ? cell.querySelector('input, select, textarea') : null;
-              if (!el) return '—';
-              if (el.tagName === 'SELECT') {
-                return (el.selectedOptions?.[0]?.textContent || '').trim() || '—';
-              }
-              return (el.value || '').trim() || '—';
+              const el = cell ? cell.querySelector("input, select, textarea") : null;
+              if (!el) return "—";
+              if (el.tagName === "SELECT") return (el.selectedOptions?.[0]?.textContent || "").trim() || "—";
+              return (el.value || "").trim() || "—";
             };
 
-            const hora = getInputVal(0);
-            const medicamento = getInputVal(1);
-            const dosis = getInputVal(2);
-            const dilucion = getInputVal(3);
-            const tiempo = getInputVal(4);
-            const via = getInputVal(5);
-            // En la celda de catéter hay select + botón X; tomamos el select
             const catCell = tds[6];
-            const catSelect = catCell ? catCell.querySelector('select') : null;
-            const cateter = catSelect ? ((catSelect.selectedOptions?.[0]?.textContent || '').trim() || '—') : '—';
+            const catSelect = catCell ? catCell.querySelector("select") : null;
+            const cateter = catSelect ? ((catSelect.selectedOptions?.[0]?.textContent || "").trim() || "—") : "—";
 
-            const card = document.createElement('div');
-            card.className = 'pdf-card';
+            const card = document.createElement("div");
+            card.className = "pdf-card";
             card.innerHTML = `
               <div class="pdf-card-title">Medicamento ${idx + 1}</div>
               <div class="pdf-kv">
-                <div class="pdf-k">Hora</div><div class="pdf-v">${hora}</div>
-                <div class="pdf-k">Medicamento</div><div class="pdf-v">${medicamento}</div>
-                <div class="pdf-k">Dosis</div><div class="pdf-v">${dosis}</div>
-                <div class="pdf-k">Dilución</div><div class="pdf-v">${dilucion}</div>
-                <div class="pdf-k">Tiempo de infusión</div><div class="pdf-v">${tiempo}</div>
-                <div class="pdf-k">Vía</div><div class="pdf-v">${via}</div>
+                <div class="pdf-k">Hora</div><div class="pdf-v">${getInputVal(0)}</div>
+                <div class="pdf-k">Medicamento</div><div class="pdf-v">${getInputVal(1)}</div>
+                <div class="pdf-k">Dosis</div><div class="pdf-v">${getInputVal(2)}</div>
+                <div class="pdf-k">Dilución</div><div class="pdf-v">${getInputVal(3)}</div>
+                <div class="pdf-k">Tiempo de infusión</div><div class="pdf-v">${getInputVal(4)}</div>
+                <div class="pdf-k">Vía</div><div class="pdf-v">${getInputVal(5)}</div>
                 <div class="pdf-k">Tipo de catéter</div><div class="pdf-v">${cateter}</div>
               </div>
             `;
@@ -580,58 +820,55 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
 
-        // Insertar las tarjetas justo donde está la tabla
         ftSection.insertBefore(cards, ftWrapper);
-      };
-
-      const restorePdfLayout = () => {
-        document.body.classList.remove('is-exporting-pdf');
-        const cards = document.getElementById('ft-pdf-cards');
-        if (cards) cards.remove();
-        const ftTable = document.getElementById('tabla-farmacoterapia');
-        const ftWrapper = ftTable ? ftTable.closest('.table-wrapper') : null;
-        if (ftWrapper) ftWrapper.classList.remove('hide-for-pdf');
-      };
-
-      // jsPDF viene del bundle de html2pdf
-      if (!window.jspdf) {
-        console.error("jsPDF no disponible");
-        return;
+        restoreFarmaco = () => {
+          document.getElementById("ft-pdf-cards")?.remove();
+          ftWrapper.classList.remove("hide-for-pdf");
+        };
       }
+    }
+
+    return () => {
+      restoreFarmaco();
+      undoSelectionFilter();
+      document.body.classList.remove("is-exporting-pdf");
+    };
+  };
+
+  const collectCollapsibleState = () => {
+    const collapsibles = Array.from(document.querySelectorAll(".scale-card-collapsible"));
+    const wasCollapsed = collapsibles.map((card) => card.classList.contains("is-collapsed"));
+
+    collapsibles.forEach((card) => {
+      card.classList.remove("is-collapsed");
+      const header = card.querySelector(".scale-card-header");
+      const body = card.querySelector(".scale-card-body");
+      if (header) header.setAttribute("aria-expanded", "true");
+      if (body) body.style.maxHeight = body.scrollHeight + "px";
+    });
+
+    return () => {
+      collapsibles.forEach((card, idx) => {
+        const header = card.querySelector(".scale-card-header");
+        const body = card.querySelector(".scale-card-body");
+        const expanded = !wasCollapsed[idx];
+        card.classList.toggle("is-collapsed", !expanded);
+        if (header) header.setAttribute("aria-expanded", String(expanded));
+        if (body) body.style.maxHeight = expanded ? (body.scrollHeight + "px") : "0px";
+      });
+    };
+  };
+
+  if (btnPdf) {
+    btnPdf.addEventListener("click", () => {
+      const wrapper = document.getElementById("hoja-enfermeria");
+      if (!wrapper || !window.jspdf) return;
+
+      const restoreCollapsibles = collectCollapsibleState();
+      const restorePdfLayout = buildPdfLayout();
       const { jsPDF } = window.jspdf;
 
-      // Asegurar que las secciones desplegables salgan completas en el PDF
-      const collapsibles = Array.from(document.querySelectorAll('.scale-card-collapsible'));
-      const wasCollapsed = collapsibles.map((card) => card.classList.contains('is-collapsed'));
-
-      const expandForPdf = () => {
-        collapsibles.forEach((card) => {
-          card.classList.remove('is-collapsed');
-          const header = card.querySelector('.scale-card-header');
-          const body = card.querySelector('.scale-card-body');
-          if (header) header.setAttribute('aria-expanded', 'true');
-          if (body) body.style.maxHeight = body.scrollHeight + 'px';
-        });
-      };
-
-      const restoreCollapsibles = () => {
-        collapsibles.forEach((card, idx) => {
-          const header = card.querySelector('.scale-card-header');
-          const body = card.querySelector('.scale-card-body');
-          const expanded = !wasCollapsed[idx];
-          card.classList.toggle('is-collapsed', !expanded);
-          if (header) header.setAttribute('aria-expanded', String(expanded));
-          if (body) body.style.maxHeight = expanded ? (body.scrollHeight + 'px') : '0px';
-        });
-      };
-
-      expandForPdf();
-      preparePdfLayout();
-
-      html2canvas(wrapper, {
-        scale: 2,
-        useCORS: true
-      }).then((canvas) => {
+      html2canvas(wrapper, { scale: 2, useCORS: true }).then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
         const pdf = new jsPDF("p", "mm", "a4");
         const pageWidth = pdf.internal.pageSize.getWidth();
@@ -649,7 +886,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const x = (pageWidth - imgWidth) / 2;
         pdf.addImage(imgData, "PNG", x, 0, imgWidth, imgHeight);
 
-        // Nombre del archivo: sanare_paciente_expediente_fecha
         let nombre = document.getElementById("nombre")?.value || "paciente";
         let expediente = document.getElementById("expediente")?.value || "expediente";
         let fecha = document.getElementById("fecha")?.value || new Date().toISOString().split("T")[0];
@@ -658,14 +894,35 @@ document.addEventListener("DOMContentLoaded", () => {
         expediente = sanitizeForFileName(expediente) || "expediente";
         fecha = fecha.replace(/[^0-9\-]/g, "_");
 
-        const fileName = `sanare_${nombre}_${expediente}_${fecha}.pdf`;
-        pdf.save(fileName);
+        pdf.save(`sanare_${nombre}_${expediente}_${fecha}.pdf`);
       }).catch((err) => {
-        console.error('Error al generar PDF:', err);
+        console.error("Error al generar PDF:", err);
       }).finally(() => {
         restoreCollapsibles();
         restorePdfLayout();
       });
+    });
+  }
+
+  if (btnWord) {
+    btnWord.addEventListener("click", () => {
+      const wrapperClone = cloneExportWrapper();
+      if (!wrapperClone) return;
+
+      const nombre = sanitizeForFileName(document.getElementById("nombre")?.value || "paciente") || "paciente";
+      const expediente = sanitizeForFileName(document.getElementById("expediente")?.value || "expediente") || "expediente";
+      const fecha = (document.getElementById("fecha")?.value || new Date().toISOString().split("T")[0]).replace(/[^0-9\-]/g, "_");
+
+      const html = buildWordExportHtml(wrapperClone);
+      const blob = new Blob(["﻿", html], { type: "application/msword" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `sanare_${nombre}_${expediente}_${fecha}.doc`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     });
   }
 });
