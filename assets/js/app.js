@@ -100,6 +100,8 @@ function transformCloneForWord(root) {
   if (!root) return;
 
   root.querySelectorAll(".header-logo").forEach((img) => img.remove());
+  const planEgresoSection = root.querySelector("#plan-egreso-section");
+  if (planEgresoSection) planEgresoSection.classList.add("page-break-before-egreso");
   root.querySelectorAll(".action-buttons, .btn, .icon-btn").forEach((el) => el.remove());
 
   root.querySelectorAll(".scale-card-collapsible").forEach((card) => {
@@ -119,6 +121,7 @@ function transformCloneForWord(root) {
     notesPanel.classList.toggle("is-hidden", !hasNotes);
   }
 
+  // REEMPLAZAR INPUTS/SELECTS/TEXTAREAS POR DIVS DE TEXTO
   root.querySelectorAll("input, select, textarea").forEach((el) => {
     if (el.type === "hidden") {
       el.remove();
@@ -155,10 +158,7 @@ function transformCloneForWord(root) {
     el.replaceWith(replacement);
   });
 
-  root.querySelectorAll(".selected-preview").forEach((el) => {
-    const text = (el.textContent || "").trim();
-    if (!text || text === "Seleccionar…") el.remove();
-  });
+  root.querySelectorAll(".selected-preview").forEach((el) => { el.remove(); });
 
   root.querySelectorAll(".dd-multi-menu, .downton-hidden-inputs").forEach((el) => el.remove());
   root.querySelectorAll(".dd-multi-btn").forEach((btn) => {
@@ -167,18 +167,42 @@ function transformCloneForWord(root) {
     replacement.textContent = (btn.textContent || "").trim() || "Ninguno (0)";
     btn.replaceWith(replacement);
   });
+
+  // TRANSFORMAR GRIDS EN TABLAS (WORD COMPATIBILITY)
+  const transformToTable = (selector, columns) => {
+    root.querySelectorAll(selector).forEach((grid) => {
+      const children = Array.from(grid.children);
+      if (children.length === 0) return;
+
+      const table = document.createElement("table");
+      table.style.width = "100%";
+      table.style.borderCollapse = "collapse";
+      table.style.marginBottom = "4px";
+
+      let currentRow;
+      children.forEach((child, idx) => {
+        if (idx % columns === 0) {
+          currentRow = document.createElement("tr");
+          table.appendChild(currentRow);
+        }
+        const td = document.createElement("td");
+        td.style.verticalAlign = "top";
+        td.style.padding = "2px 4px";
+        td.style.width = `${100 / columns}%`;
+        td.appendChild(child);
+        currentRow.appendChild(td);
+      });
+      grid.replaceWith(table);
+    });
+  };
+
+  transformToTable(".section-grid-2", 2);
+  transformToTable(".section-grid-2-tall", 2);
+  transformToTable(".field-row", 2);
 }
 
 function buildWordExportHtml(wrapperClone) {
   transformCloneForWord(wrapperClone);
-
-  const inlineCss = Array.from(document.styleSheets).map((sheet) => {
-    try {
-      return Array.from(sheet.cssRules || []).map((rule) => rule.cssText).join("\n");
-    } catch (err) {
-      return "";
-    }
-  }).join("\n");
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -186,44 +210,39 @@ function buildWordExportHtml(wrapperClone) {
 <meta charset="utf-8">
 <title>Hoja de enfermería</title>
 <style>
-${inlineCss}
-@page { size: A4; margin: 14mm; }
-body { background: #ffffff !important; padding: 0 !important; color: #111827; }
-* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.app-wrapper { box-shadow: none !important; margin: 0 auto !important; max-width: 100% !important; border: 1px solid #d1d5db !important; padding: 14px 16px 18px !important; border-radius: 10px !important; }
-.header { margin-bottom: 10px !important; padding-bottom: 8px !important; text-align: center !important; }
+@page { size: A4; margin: 5mm; }
+body { background: #ffffff !important; padding: 0 !important; color: #111827; font-family: Arial, sans-serif !important; }
+* { -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: Arial, sans-serif !important; }
+.app-wrapper { box-shadow: none !important; margin: 0 auto !important; max-width: 100% !important; border: 1px solid #d1d5db !important; padding: 4px 6px 6px !important; border-radius: 6px !important; }
+.header { margin-bottom: 2px !important; padding-bottom: 2px !important; text-align: center !important; border-bottom: 1px solid #eee !important; }
 .header-logo { display:none !important; }
-.header-title { font-size: 16px !important; letter-spacing: .08em !important; }
-.header-subtitle { font-size: 11px !important; letter-spacing: .12em !important; }
-.section { margin-top: 10px !important; padding: 10px 12px 12px !important; background: #f9fafb !important; }
-.section-title { margin-bottom: 8px !important; }
-.section-grid-2, .section-grid-2-tall { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px 14px !important; }
-.field-row { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px !important; }
-.field { gap: 4px !important; }
-label { display:block; margin-bottom: 3px; }
-.word-field-value { min-height: 28px; border: 1px solid #d1d5db; border-radius: 8px; padding: 6px 9px; background: #ffffff; font-size: 12px; line-height: 1.35; white-space: pre-wrap; word-break: break-word; }
-.word-textarea-value { min-height: 60px; }
-.word-table-value { min-height: 22px; padding: 4px 6px; border-radius: 6px; }
-.table-wrapper { overflow: visible !important; border-radius: 10px !important; }
-table { width: 100% !important; table-layout: fixed; }
-th, td { padding: 6px 7px !important; border: 1px solid #e5e7eb !important; white-space: normal !important; word-break: break-word; }
-thead { display: table-header-group; }
+.header-title { font-size: 11px !important; letter-spacing: .05em !important; margin: 0 !important; font-weight: bold; }
+.header-subtitle { font-size: 8px !important; letter-spacing: .05em !important; margin: 0 !important; }
+.section { margin-top: 3px !important; padding: 3px 5px 4px !important; background: #ffffff !important; border: 1px solid #eee !important; border-radius: 4px !important; }
+.section-title { margin-bottom: 2px !important; font-size: 9px !important; font-weight: bold !important; color: #444 !important; }
+.field { gap: 0 !important; font-size: 8.5px !important; margin-bottom: 2px !important; }
+label { display:block; margin-bottom: 0px; font-size: 8.5px !important; font-weight: bold !important; color: #333 !important; }
+.word-field-value { min-height: 14px; border: 1px solid #ccc; border-radius: 3px; padding: 2px 4px; background: #ffffff; font-size: 8.5px; line-height: 1.1; white-space: pre-wrap; word-break: break-word; }
+.word-textarea-value { min-height: 24px; }
+.word-table-value { min-height: 12px; padding: 1px 3px; border-radius: 2px; }
+.table-wrapper { overflow: visible !important; border-radius: 4px !important; margin-top: 2px !important; }
+table { width: 100% !important; border-collapse: collapse !important; table-layout: fixed; }
+th, td { padding: 2px 3px !important; border: 1px solid #ddd !important; white-space: normal !important; word-break: break-word; font-size: 8px !important; line-height: 1.05 !important; }
+thead { background: #f0f0f0 !important; }
 tr { page-break-inside: avoid; }
-.action-buttons, .btn, .icon-btn, .footer-note + .btn, .footer-note + .action-buttons, .downton-notes-toggle-wrap, .scale-card-chevron { display:none !important; }
+.action-buttons, .btn, .icon-btn, .footer-note + .btn, .footer-note + .action-buttons, .downton-notes-toggle-wrap, .scale-card-chevron, .tag, .help, .multi-sheet-shell { display:none !important; }
 .checkbox-group .checkbox-item.export-hide,
 #plan-egreso-section .field.export-hide,
 .downton-hidden-inputs,
 .dd-multi-menu,
 .export-hide { display:none !important; }
-.downton-grid { display: flex !important; flex-wrap: nowrap !important; gap: 10px !important; min-width: 0 !important; overflow: visible !important; }
-.downton-col { flex: 1 1 0 !important; min-width: 0 !important; }
-.downton-col-summary { flex: 1.1 1 0 !important; min-width: 0 !important; }
-.downton-summary-top { display:block !important; }
-.downton-total { margin-bottom: 8px; }
-#downton-content { max-height: none !important; }
-@media screen {
-  body { padding: 12px !important; }
-}
+.checkbox-group { gap: 1px !important; }
+.checkbox-item { gap: 3px !important; font-size: 8px !important; margin-bottom: 1px !important; }
+.downton-group-title { font-size: 7.5px !important; min-height: 0 !important; margin-bottom: 1px !important; font-weight: bold; }
+.downton-total { padding: 3px !important; margin-bottom: 1px; font-size: 8px !important; background: #f9f9f9 !important; border: 1px solid #eee !important; }
+.footer-note { font-size: 7.5px !important; margin-top: 4px !important; color: #999 !important; }
+.page-break-before-egreso { break-before: page; page-break-before: always; }
+#hoja-enfermeria { max-width: 100% !important; }
 </style>
 </head>
 <body>${wrapperClone.outerHTML}</body>
@@ -296,6 +315,99 @@ function addSignoVitalRow(tableBody) {
 }
 
 
+
+
+function getSelectText(selectEl) {
+  if (!(selectEl instanceof HTMLSelectElement)) return "";
+  return selectEl.options[selectEl.selectedIndex]?.text || "";
+}
+
+function serializeTableRows(tableSelector) {
+  const table = document.querySelector(tableSelector);
+  if (!table) return [];
+  return Array.from(table.querySelectorAll("tbody tr")).map((tr) =>
+    Array.from(tr.querySelectorAll("td")).map((td) => {
+      const control = td.querySelector("input, select, textarea");
+      if (!control) return "";
+      if (control instanceof HTMLSelectElement) return control.value || "";
+      if (control instanceof HTMLInputElement && (control.type === "checkbox" || control.type === "radio")) {
+        return control.checked ? "1" : "0";
+      }
+      return control.value || "";
+    })
+  );
+}
+
+function serializeCurrentSheet() {
+  const data = { fields: {}, signosVitales: serializeTableRows("#tabla-signos-vitales"), farmacoterapia: serializeTableRows("#tabla-farmacoterapia") };
+  document.querySelectorAll("#hoja-enfermeria input, #hoja-enfermeria select, #hoja-enfermeria textarea").forEach((el) => {
+    const key = el.name || el.id;
+    if (!key) return;
+    if (el instanceof HTMLInputElement && (el.type === "checkbox" || el.type === "radio")) {
+      data.fields[key] = !!el.checked;
+    } else {
+      data.fields[key] = el.value || "";
+    }
+  });
+  return data;
+}
+
+function ensureTableRowCount(tableSelector, desiredCount, rowFactory) {
+  const tbody = document.querySelector(`${tableSelector} tbody`);
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  for (let i = 0; i < desiredCount; i++) {
+    rowFactory(tbody);
+  }
+}
+
+function applyTableRows(tableSelector, rowsData, rowFactory) {
+  const rows = Array.isArray(rowsData) && rowsData.length ? rowsData : [[]];
+  ensureTableRowCount(tableSelector, rows.length, rowFactory);
+  const renderedRows = Array.from(document.querySelectorAll(`${tableSelector} tbody tr`));
+  renderedRows.forEach((tr, rowIndex) => {
+    const rowValues = rows[rowIndex] || [];
+    Array.from(tr.querySelectorAll("td")).forEach((td, cellIndex) => {
+      const control = td.querySelector("input, select, textarea");
+      if (!control) return;
+      const value = rowValues[cellIndex] ?? "";
+      if (control instanceof HTMLSelectElement) {
+        control.value = value;
+      } else if (control instanceof HTMLInputElement && (control.type === "checkbox" || control.type === "radio")) {
+        control.checked = value === "1";
+      } else {
+        control.value = value;
+      }
+    });
+  });
+}
+
+function refreshSelectedPreviews(root = document) {
+  const previews = root.querySelectorAll('.selected-preview[data-for]');
+  previews.forEach((div) => {
+    const id = div.getAttribute('data-for');
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const txt = getSelectText(sel);
+    sel.title = txt || '';
+    div.textContent = txt || '';
+    div.style.display = sel.value ? 'block' : 'none';
+  });
+}
+
+function updateSheetTabLabels(store, container) {
+  if (!container) return;
+  container.innerHTML = "";
+  store.forEach((sheet, idx) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `sheet-tab${sheet.active ? " is-active" : ""}`;
+    const patientName = (sheet.data?.fields?.nombre || "").trim();
+    btn.textContent = patientName ? `Hoja ${idx + 1}: ${patientName}` : `Hoja ${idx + 1}`;
+    btn.dataset.sheetId = sheet.id;
+    container.appendChild(btn);
+  });
+}
 
 function addMedicamentoRow(tableBody, medicamentosDatalistId) {
   const row = document.createElement("tr");
@@ -452,6 +564,110 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
+
+  initSelectedPreviews();
+
+  const sheetTabsContainer = document.getElementById("sheet-tabs");
+  const btnNewSheet = document.getElementById("btn-new-sheet");
+  const btnDuplicateSheet = document.getElementById("btn-duplicate-sheet");
+  const btnDeleteSheet = document.getElementById("btn-delete-sheet");
+  const sheetStore = [{ id: `sheet-${Date.now()}`, active: true, data: serializeCurrentSheet() }];
+
+  const getActiveSheetIndex = () => sheetStore.findIndex((sheet) => sheet.active);
+
+  const saveActiveSheet = () => {
+    const idx = getActiveSheetIndex();
+    if (idx < 0) return;
+    sheetStore[idx].data = serializeCurrentSheet();
+  };
+
+  const loadSheet = (sheetId) => {
+    saveActiveSheet();
+    const target = sheetStore.find((sheet) => sheet.id === sheetId);
+    if (!target) return;
+    sheetStore.forEach((sheet) => { sheet.active = sheet.id === sheetId; });
+
+    const data = target.data || { fields: {}, signosVitales: [[]], farmacoterapia: [[]] };
+    document.querySelectorAll("#hoja-enfermeria input, #hoja-enfermeria select, #hoja-enfermeria textarea").forEach((el) => {
+      const key = el.name || el.id;
+      if (!key) return;
+      const value = data.fields?.[key];
+      if (el instanceof HTMLInputElement && (el.type === "checkbox" || el.type === "radio")) {
+        el.checked = !!value;
+      } else {
+        el.value = value ?? "";
+      }
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+
+    applyTableRows("#tabla-signos-vitales", data.signosVitales, addSignoVitalRow);
+    applyTableRows("#tabla-farmacoterapia", data.farmacoterapia, (tbody) => addMedicamentoRow(tbody, "lista-medicamentos"));
+    refreshSelectedPreviews();
+    updateSheetTabLabels(sheetStore, sheetTabsContainer);
+  };
+
+  if (sheetTabsContainer) {
+    updateSheetTabLabels(sheetStore, sheetTabsContainer);
+    sheetTabsContainer.addEventListener("click", (e) => {
+      const btn = e.target.closest(".sheet-tab");
+      if (!btn) return;
+      loadSheet(btn.dataset.sheetId);
+    });
+  }
+
+  if (btnNewSheet) {
+    btnNewSheet.addEventListener("click", () => {
+      saveActiveSheet();
+      sheetStore.forEach((sheet) => { sheet.active = false; });
+      const newSheet = {
+        id: `sheet-${Date.now()}-${sheetStore.length + 1}`,
+        active: true,
+        data: { fields: {}, signosVitales: [[]], farmacoterapia: [[]] }
+      };
+      sheetStore.push(newSheet);
+      loadSheet(newSheet.id);
+    });
+  }
+
+  if (btnDuplicateSheet) {
+    btnDuplicateSheet.addEventListener("click", () => {
+      saveActiveSheet();
+      const idx = getActiveSheetIndex();
+      const current = idx >= 0 ? sheetStore[idx] : null;
+      if (!current) return;
+      sheetStore.forEach((sheet) => { sheet.active = false; });
+      const copy = JSON.parse(JSON.stringify(current.data));
+      const newSheet = { id: `sheet-${Date.now()}-${sheetStore.length + 1}`, active: true, data: copy };
+      sheetStore.push(newSheet);
+      loadSheet(newSheet.id);
+    });
+  }
+
+  if (btnDeleteSheet) {
+    btnDeleteSheet.addEventListener("click", () => {
+      if (sheetStore.length === 1) {
+        alert("Debe existir al menos una hoja de enfermería activa.");
+        return;
+      }
+      const idx = getActiveSheetIndex();
+      if (idx < 0) return;
+      sheetStore.splice(idx, 1);
+      const nextIdx = Math.max(0, idx - 1);
+      sheetStore.forEach((sheet, sIdx) => { sheet.active = sIdx === nextIdx; });
+      loadSheet(sheetStore[nextIdx].id);
+    });
+  }
+
+  document.getElementById("hoja-enfermeria")?.addEventListener("input", () => {
+    saveActiveSheet();
+    updateSheetTabLabels(sheetStore, sheetTabsContainer);
+  });
+
+  document.getElementById("hoja-enfermeria")?.addEventListener("change", () => {
+    saveActiveSheet();
+    updateSheetTabLabels(sheetStore, sheetTabsContainer);
+  });
 
   // Desplegable para la escala "Riesgo de caídas (J.H. Downton)"
   const downtonCard = document.getElementById("downton-card");
@@ -760,7 +976,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.add("is-exporting-pdf");
     const undoSelectionFilter = collectExportMutations();
 
-    const ftTable = document.getElementById("tabla-farmacoterapia");
+  const ftTable = document.getElementById("tabla-farmacoterapia");
     let restoreFarmaco = () => {};
 
     if (ftTable) {
@@ -828,8 +1044,54 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    const downtonCard = document.getElementById("downton-card");
+    let restoreDownton = () => {};
+    if (downtonCard) {
+      const downtonBody = downtonCard.querySelector(".scale-card-body");
+      if (downtonBody) {
+        downtonBody.classList.add("hide-for-pdf");
+        const existing = document.getElementById("downton-pdf-summary");
+        if (existing) existing.remove();
+
+        const summary = document.createElement("div");
+        summary.id = "downton-pdf-summary";
+        summary.className = "pdf-cards";
+
+        const totalScore = document.getElementById("downton-total")?.value || "0";
+        const notas = (document.getElementById("downton-notas")?.value || "").trim();
+        
+        const getGroupSelections = (groupKey) => {
+          const host = document.querySelector(`.downton-dropdown-multi[data-group='${groupKey}']`);
+          return host ? (host.querySelector(".dd-multi-btn")?.textContent || "Ninguno (0)") : "—";
+        };
+
+        const card = document.createElement("div");
+        card.className = "pdf-card";
+        card.innerHTML = `
+          <div class="pdf-card-title">Resumen: Riesgo de caídas (J.H. Downton)</div>
+          <div class="pdf-kv">
+            <div class="pdf-k">Puntaje total</div><div class="pdf-v" style="font-weight:bold;">${totalScore}</div>
+            <div class="pdf-k">Caídas previas</div><div class="pdf-v">${getSelectText(document.getElementById("downton-caidas-select"))}</div>
+            <div class="pdf-k">Medicamentos</div><div class="pdf-v">${getGroupSelections("meds")}</div>
+            <div class="pdf-k">Déficits sensoriales</div><div class="pdf-v">${getGroupSelections("sens")}</div>
+            <div class="pdf-k">Estado mental</div><div class="pdf-v">${getSelectText(document.getElementById("downton-mental-select"))}</div>
+            <div class="pdf-k">Deambulación</div><div class="pdf-v">${getSelectText(document.getElementById("downton-marcha-select"))}</div>
+            <div class="pdf-k">Notas</div><div class="pdf-v">${notas || "—"}</div>
+          </div>
+        `;
+        summary.appendChild(card);
+        downtonCard.appendChild(summary);
+
+        restoreDownton = () => {
+          document.getElementById("downton-pdf-summary")?.remove();
+          downtonBody.classList.remove("hide-for-pdf");
+        };
+      }
+    }
+
     return () => {
       restoreFarmaco();
+      restoreDownton();
       undoSelectionFilter();
       document.body.classList.remove("is-exporting-pdf");
     };
@@ -861,6 +1123,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnPdf) {
     btnPdf.addEventListener("click", () => {
+      saveActiveSheet();
       const wrapper = document.getElementById("hoja-enfermeria");
       if (!wrapper || !window.jspdf) return;
 
@@ -906,6 +1169,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnWord) {
     btnWord.addEventListener("click", () => {
+      saveActiveSheet();
       const wrapperClone = cloneExportWrapper();
       if (!wrapperClone) return;
 
@@ -929,24 +1193,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // Mostrar texto completo de opciones largas (Escalas de valoración)
-(function initSelectedPreviews(){
+function initSelectedPreviews(){
   const previews = document.querySelectorAll('.selected-preview[data-for]');
   if(!previews.length) return;
   previews.forEach(div=>{
     const id = div.getAttribute('data-for');
     const sel = document.getElementById(id);
     if(!sel) return;
-
-    const update = () => {
-      const opt = sel.options[sel.selectedIndex];
-      const txt = opt ? opt.text : '';
-      sel.title = txt || '';
-      div.textContent = txt || '';
-      div.style.display = sel.value ? 'block' : 'none';
-    };
-
-    sel.addEventListener('change', update);
-    update();
+    sel.addEventListener('change', () => refreshSelectedPreviews());
   });
-})();
-
+  refreshSelectedPreviews();
+}

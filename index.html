@@ -13,6 +13,20 @@
 <link href="assets/css/styles.css" rel="stylesheet"/>
 </head>
 <body>
+<div class="multi-sheet-shell">
+  <div class="multi-sheet-toolbar">
+    <div>
+      <div class="multi-sheet-title">Hojas de enfermería</div>
+      <div class="multi-sheet-subtitle">Trabaja varios registros en la misma interfaz sin perder la captura actual.</div>
+    </div>
+    <div class="multi-sheet-actions">
+      <button class="btn btn-light" id="btn-new-sheet" type="button">+ Nueva hoja</button>
+      <button class="btn btn-light" id="btn-duplicate-sheet" type="button">Duplicar actual</button>
+      <button class="btn btn-light btn-danger-light" id="btn-delete-sheet" type="button">Eliminar actual</button>
+    </div>
+  </div>
+  <div class="sheet-tabs" id="sheet-tabs"></div>
+</div>
 <div class="app-wrapper" id="hoja-enfermeria">
 <header class="header">
 <img alt="Sanaré - Clínica de Infusión" class="header-logo" src="assets/img/logo-sanare.png"/>
@@ -182,6 +196,7 @@
 <option value="4">Grado 4 — Potencialmente mortal</option>
 <option value="5">Grado 5 — Muerte</option>
 </select>
+<div class="selected-preview" data-for="ctcae"></div>
 </div>
 <div class="field span-2">
 <label for="mucositis">Mucositis oral (NCI)</label>

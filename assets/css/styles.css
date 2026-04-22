@@ -341,6 +341,25 @@ body.is-exporting-pdf .hide-for-pdf {
   display: none !important;
 }
 
+body.is-exporting-pdf select {
+  display: none !important;
+}
+
+body.is-exporting-pdf .selected-preview {
+  display: block !important;
+  border: none !important;
+  padding: 0 !important;
+  background: none !important;
+  margin-top: 2px !important;
+}
+
+body.is-exporting-pdf .scale-card-chevron,
+body.is-exporting-pdf .btn,
+body.is-exporting-pdf .icon-btn,
+body.is-exporting-pdf .action-buttons {
+  display: none !important;
+}
+
 
 .icon-btn {
   border: none;
@@ -763,5 +782,152 @@ td.cell-with-x .icon-btn:hover {
 
   .downton-notes-toggle{
     width:100%;
+  }
+}
+
+.multi-sheet-shell {
+  max-width: 1100px;
+  margin: 24px auto 0;
+  padding: 18px 20px 14px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(209,213,219,0.85);
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.2);
+}
+
+.multi-sheet-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.multi-sheet-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #4b5563;
+}
+
+.multi-sheet-subtitle {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.multi-sheet-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sheet-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.sheet-tab {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #4b5563;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.sheet-tab:hover {
+  border-color: #b98f7b;
+  color: #7c5a49;
+}
+
+.sheet-tab.is-active {
+  background: #b98f7b;
+  color: #fff;
+  border-color: #b98f7b;
+  box-shadow: 0 9px 18px rgba(15, 23, 42, 0.18);
+}
+
+button.btn.btn-light {
+  background: #ffffff;
+  color: #7c5a49;
+  border: 1px solid #d8c0b3;
+  box-shadow: none;
+}
+
+button.btn.btn-light:hover {
+  background: #fff7f3;
+  box-shadow: none;
+}
+
+button.btn.btn-danger-light {
+  color: #9f1239;
+  border-color: #fecdd3;
+}
+
+.selected-preview {
+  display: none;
+  margin-top: 6px;
+  min-height: 32px;
+  border: 1px dashed #e5e7eb;
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: #fbfbfb;
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.35;
+}
+
+@media print {
+  body {
+    background: #fff !important;
+    padding: 0 !important;
+  }
+
+  .multi-sheet-shell,
+  .action-buttons,
+  #btn-add-sv,
+  #btn-add-ft,
+  .icon-btn,
+  .downton-notes-toggle-wrap {
+    display: none !important;
+  }
+
+  .app-wrapper {
+    max-width: 100% !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+
+  #seccion-escalas .field > select {
+    display: none !important;
+  }
+
+  #seccion-escalas .selected-preview {
+    display: block !important;
+    color: #374151 !important;
+    background: #fff !important;
+    border-style: solid !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .multi-sheet-shell {
+    margin: 0 0 12px;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 14px 14px 12px;
+  }
+
+  .multi-sheet-actions {
+    width: 100%;
   }
 }
