@@ -1,4 +1,3 @@
-
 // Utilidad: obtener la hora actual en formato HH:MM
 function getCurrentTimeHM() {
   const now = new Date();
@@ -135,11 +134,10 @@ function transformCloneForWord(root) {
       value = el.value || el.textContent || "";
     } else if (el instanceof HTMLInputElement) {
       if (el.type === "checkbox" || el.type === "radio") {
-        if (!el.checked) {
-          el.remove();
-          return;
-        }
-        value = el.closest("label")?.innerText?.trim() || "Sí";
+        // Eliminar el input siempre; el label que lo envuelve ya contiene el texto visible.
+        // hideUncheckedOptions() ya ocultó los items no seleccionados antes de llegar aquí.
+        el.remove();
+        return;
       } else {
         value = el.value || "";
       }
