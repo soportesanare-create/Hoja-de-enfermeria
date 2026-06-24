@@ -583,7 +583,13 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const loadSheet = (sheetId) => {
-    saveActiveSheet();
+    // Guardar la hoja ACTUALMENTE activa (antes de cambiar el active)
+    if (!isLoadingSheet) {
+      const prevIdx = getActiveSheetIndex();
+      if (prevIdx >= 0) {
+        sheetStore[prevIdx].data = serializeCurrentSheet();
+      }
+    }
     const target = sheetStore.find((sheet) => sheet.id === sheetId);
     if (!target) return;
     isLoadingSheet = true;
@@ -621,11 +627,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnNewSheet) {
     btnNewSheet.addEventListener("click", () => {
-      saveActiveSheet();
-      sheetStore.forEach((sheet) => { sheet.active = false; });
       const newSheet = {
         id: `sheet-${Date.now()}-${sheetStore.length + 1}`,
-        active: true,
+        active: false,
         data: { fields: {}, signosVitales: [[]], farmacoterapia: [[]] }
       };
       sheetStore.push(newSheet);
@@ -635,13 +639,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnDuplicateSheet) {
     btnDuplicateSheet.addEventListener("click", () => {
-      saveActiveSheet();
       const idx = getActiveSheetIndex();
       const current = idx >= 0 ? sheetStore[idx] : null;
       if (!current) return;
-      sheetStore.forEach((sheet) => { sheet.active = false; });
+      // Guardar estado actual del DOM en la hoja activa antes de duplicar
+      current.data = serializeCurrentSheet();
       const copy = JSON.parse(JSON.stringify(current.data));
-      const newSheet = { id: `sheet-${Date.now()}-${sheetStore.length + 1}`, active: true, data: copy };
+      const newSheet = { id: `sheet-${Date.now()}-${sheetStore.length + 1}`, active: false, data: copy };
       sheetStore.push(newSheet);
       loadSheet(newSheet.id);
     });
