@@ -127,7 +127,7 @@ function transformCloneForWord(root) {
       return;
     }
 
-   let value = "";
+    let value = "";
     if (el instanceof HTMLSelectElement) {
       value = el.options[el.selectedIndex]?.text || "";
     } else if (el instanceof HTMLTextAreaElement) {
