@@ -66,14 +66,14 @@ function syncFormValuesToClone(sourceRoot, cloneRoot) {
 function hideUncheckedOptions(root) {
   root.querySelectorAll(".checkbox-group .checkbox-item").forEach((label) => {
     const input = label.querySelector('input[type="checkbox"], input[type="radio"]');
-    if (input && !input.checked) label.remove(); // <-- remove() en vez de classList.add
+    if (input && !input.checked) label.remove();
   });
 
   root.querySelectorAll("#plan-egreso-section .field").forEach((field) => {
     const control = field.querySelector("textarea, input, select");
     if (!control) return;
     const value = (control.value || "").trim();
-    if (!value) field.remove(); // <-- remove() en vez de classList.add
+    if (!value) field.remove();
   });
 }
 
