@@ -134,9 +134,17 @@ function transformCloneForWord(root) {
       value = el.value || el.textContent || "";
     } else if (el instanceof HTMLInputElement) {
       if (el.type === "checkbox" || el.type === "radio") {
-        // Eliminar el input siempre; el label que lo envuelve ya contiene el texto visible.
-        // hideUncheckedOptions() ya ocultó los items no seleccionados antes de llegar aquí.
-        el.remove();
+        // Reemplazar el label completo con un div de solo texto para evitar duplicados en Word.
+        const parentLabel = el.closest(".checkbox-item");
+        if (parentLabel) {
+          const textContent = parentLabel.textContent.trim();
+          const div = document.createElement("div");
+          div.className = "checkbox-item";
+          div.textContent = textContent;
+          parentLabel.replaceWith(div);
+        } else {
+          el.remove();
+        }
         return;
       } else {
         value = el.value || "";
