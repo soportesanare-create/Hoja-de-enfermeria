@@ -99,18 +99,19 @@ function cloneExportWrapper() {
 function transformCloneForWord(root) {
   if (!root) return;
 
-  root.querySelectorAll(".header-logo").forEach((img) => img.remove());
+  root.querySelectorAll(".header-logo, .tag, .help, datalist, .action-buttons, .btn, .icon-btn, .scale-card-chevron").forEach((el) => el.remove());
   const planEgresoSection = root.querySelector("#plan-egreso-section");
   if (planEgresoSection) planEgresoSection.classList.add("page-break-before-egreso");
-  root.querySelectorAll(".action-buttons, .btn, .icon-btn").forEach((el) => el.remove());
+  
 
-  root.querySelectorAll(".scale-card-collapsible").forEach((card) => {
-    card.classList.remove("is-collapsed");
-    const body = card.querySelector(".scale-card-body");
-    if (body) {
-      body.style.display = "block";
-      body.style.maxHeight = "none";
-      body.style.overflow = "visible";
+  root.querySelectorAll(".checkbox-item").forEach((label) => {
+    const input = label.querySelector("input");
+    if (input) {
+      if (!input.checked) {
+        label.remove();
+        } else {
+        input.remove();
+        }
     }
   });
 
@@ -122,39 +123,26 @@ function transformCloneForWord(root) {
   }
 
   // REEMPLAZAR INPUTS/SELECTS/TEXTAREAS POR DIVS DE TEXTO
-  root.querySelectorAll("input, select, textarea").forEach((el) => {
-    if (el.type === "hidden") {
-      el.remove();
+root.querySelectorAll("input, select, textarea").forEach((el) => {
+    // Saltamos los que ya eliminamos o procesamos de forma especial arriba
+    if (el.type === "hidden" || el.type === "checkbox" || el.type === "radio") {
       return;
     }
 
     let value = "";
     if (el instanceof HTMLSelectElement) {
       value = el.options[el.selectedIndex]?.text || "";
-    } else if (el instanceof HTMLTextAreaElement) {
+    } else {
       value = el.value || el.textContent || "";
-    } else if (el instanceof HTMLInputElement) {
-      if (el.type === "checkbox" || el.type === "radio") {
-        if (!el.checked) {
-          el.remove();
-          return;
-        }
-        value = el.closest("label")?.innerText?.trim() || "Sí";
-      } else {
-        value = el.value || "";
-      }
     }
 
     const replacement = document.createElement("div");
     replacement.className = "word-field-value";
     replacement.textContent = (value || "").trim() || "—";
 
-    if (el.closest("td")) {
-      replacement.classList.add("word-table-value");
-    }
-    if (el.tagName === "TEXTAREA") {
-      replacement.classList.add("word-textarea-value");
-    }
+    if (el.closest("td")) replacement.classList.add("word-table-value");
+    if (el.tagName === "TEXTAREA") replacement.classList.add("word-textarea-value");
+    
     el.replaceWith(replacement);
   });
 
@@ -167,6 +155,9 @@ function transformCloneForWord(root) {
     replacement.textContent = (btn.textContent || "").trim() || "Ninguno (0)";
     btn.replaceWith(replacement);
   });
+
+   //  Limpieza absoluta de contenedores duplicados latentes
+  root.querySelectorAll(".selected-preview, .dd-multi-menu, .downton-hidden-inputs, .downton-select-wrap").forEach((el) => el.remove());
 
   // TRANSFORMAR GRIDS EN TABLAS (WORD COMPATIBILITY)
   const transformToTable = (selector, columns) => {
