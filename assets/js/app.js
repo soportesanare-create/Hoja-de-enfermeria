@@ -573,7 +573,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const getActiveSheetIndex = () => sheetStore.findIndex((sheet) => sheet.active);
 
+  let isLoadingSheet = false;
+
   const saveActiveSheet = () => {
+    if (isLoadingSheet) return;
     const idx = getActiveSheetIndex();
     if (idx < 0) return;
     sheetStore[idx].data = serializeCurrentSheet();
@@ -583,6 +586,7 @@ document.addEventListener("DOMContentLoaded", () => {
     saveActiveSheet();
     const target = sheetStore.find((sheet) => sheet.id === sheetId);
     if (!target) return;
+    isLoadingSheet = true;
     sheetStore.forEach((sheet) => { sheet.active = sheet.id === sheetId; });
 
     const data = target.data || { fields: {}, signosVitales: [[]], farmacoterapia: [[]] };
@@ -602,6 +606,7 @@ document.addEventListener("DOMContentLoaded", () => {
     applyTableRows("#tabla-signos-vitales", data.signosVitales, addSignoVitalRow);
     applyTableRows("#tabla-farmacoterapia", data.farmacoterapia, (tbody) => addMedicamentoRow(tbody, "lista-medicamentos"));
     refreshSelectedPreviews();
+    isLoadingSheet = false;
     updateSheetTabLabels(sheetStore, sheetTabsContainer);
   };
 
