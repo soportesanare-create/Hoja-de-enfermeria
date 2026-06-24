@@ -605,9 +605,15 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         el.value = value ?? "";
       }
-      el.dispatchEvent(new Event("change", { bubbles: true }));
-      el.dispatchEvent(new Event("input", { bubbles: true }));
+      // NO disparar eventos aquí — evita que auto-save sobreescriba la hoja nueva
     });
+
+    // Actualizar edad si hay fecha de nacimiento guardada
+    const nacimiento = data.fields?.["fecha_nacimiento"] || data.fields?.["fecha-nacimiento"] || "";
+    if (nacimiento && edadInput) {
+      const age = calculateAgeFromBirthdate(nacimiento);
+      edadInput.value = age ? `${age} años` : "";
+    }
 
     applyTableRows("#tabla-signos-vitales", data.signosVitales, addSignoVitalRow);
     applyTableRows("#tabla-farmacoterapia", data.farmacoterapia, (tbody) => addMedicamentoRow(tbody, "lista-medicamentos"));
